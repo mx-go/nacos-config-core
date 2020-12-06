@@ -12,22 +12,22 @@ import com.alibaba.nacos.client.config.http.HttpAgent;
 import com.alibaba.nacos.client.config.http.MetricsHttpAgent;
 import com.alibaba.nacos.client.config.http.ServerHttpAgent;
 import com.alibaba.nacos.client.config.impl.ClientWorker;
-import com.alibaba.nacos.client.config.impl.HttpSimpleClient;
 import com.alibaba.nacos.client.config.impl.LocalConfigInfoProcessor;
 import com.alibaba.nacos.client.config.utils.ContentUtils;
 import com.alibaba.nacos.client.config.utils.ParamUtils;
 import com.alibaba.nacos.client.utils.LogUtils;
 import com.alibaba.nacos.client.utils.ParamUtil;
+import com.alibaba.nacos.client.utils.ValidatorUtils;
+import com.alibaba.nacos.common.http.HttpRestResult;
+import com.alibaba.nacos.common.utils.StringUtils;
 import nacos.config.core.api.IChangeListener;
 import nacos.config.core.api.IConfigService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -43,28 +43,34 @@ public class ChangeableConfig implements IConfigService {
     private static final long POST_TIMEOUT = 3000L;
 
     /**
-     * http agent
+     * http agent.
      */
-    private HttpAgent agent;
+    private final HttpAgent agent;
+
     /**
-     * longpolling
+     * long polling.
      */
-    private ClientWorker worker;
+    private final ClientWorker worker;
+
     private String namespace;
-    private String encode;
-    private ConfigFilterChainManager configFilterChainManager = new ConfigFilterChainManager();
+
+    private final String encode;
+
+    private final ConfigFilterChainManager configFilterChainManager = new ConfigFilterChainManager();
 
     public ChangeableConfig(Properties properties) throws NacosException {
+        ValidatorUtils.checkInitParam(properties);
         String encodeTmp = properties.getProperty(PropertyKeyConst.ENCODE);
         if (StringUtils.isBlank(encodeTmp)) {
-            encode = Constants.ENCODE;
+            this.encode = Constants.ENCODE;
         } else {
-            encode = encodeTmp.trim();
+            this.encode = encodeTmp.trim();
         }
         initNamespace(properties);
-        agent = new MetricsHttpAgent(new ServerHttpAgent(properties));
-        agent.start();
-        worker = new ClientWorker(agent, configFilterChainManager, properties);
+
+        this.agent = new MetricsHttpAgent(new ServerHttpAgent(properties));
+        this.agent.start();
+        this.worker = new ClientWorker(this.agent, this.configFilterChainManager, properties);
     }
 
     private void initNamespace(Properties properties) {
@@ -171,44 +177,41 @@ public class ChangeableConfig implements IConfigService {
     }
 
     private String null2defaultGroup(String group) {
-        return (null == group) ? Constants.DEFAULT_GROUP : group.trim();
+        return (null == group || group.isEmpty()) ? Constants.DEFAULT_GROUP : group.trim();
     }
 
     private boolean removeConfigInner(String tenant, String dataId, String group, String tag) throws NacosException {
         group = null2defaultGroup(group);
         ParamUtils.checkKeyParam(dataId, group);
         String url = Constants.CONFIG_CONTROLLER_PATH;
-        List<String> params = new ArrayList<String>();
-        params.add("dataId");
-        params.add(dataId);
-        params.add("group");
-        params.add(group);
-        if (StringUtils.isNotEmpty(tenant)) {
-            params.add("tenant");
-            params.add(tenant);
+        Map<String, String> params = new HashMap<String, String>(4);
+        params.put("dataId", dataId);
+        params.put("group", group);
+
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(tenant)) {
+            params.put("tenant", tenant);
         }
-        if (StringUtils.isNotEmpty(tag)) {
-            params.add("tag");
-            params.add(tag);
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(tag)) {
+            params.put("tag", tag);
         }
-        HttpSimpleClient.HttpResult result = null;
+        HttpRestResult<String> result = null;
         try {
             result = agent.httpDelete(url, null, params, encode, POST_TIMEOUT);
-        } catch (IOException ioe) {
-            LOGGER.warn("[remove] error, " + dataId + ", " + group + ", " + tenant + ", msg: " + ioe.toString());
+        } catch (Exception ex) {
+            LOGGER.warn("[remove] error, " + dataId + ", " + group + ", " + tenant + ", msg: " + ex.toString());
             return false;
         }
 
-        if (HttpURLConnection.HTTP_OK == result.code) {
+        if (result.ok()) {
             LOGGER.info("[{}] [remove] ok, dataId={}, group={}, tenant={}", agent.getName(), dataId, group, tenant);
             return true;
-        } else if (HttpURLConnection.HTTP_FORBIDDEN == result.code) {
+        } else if (HttpURLConnection.HTTP_FORBIDDEN == result.getCode()) {
             LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId,
-                    group, tenant, result.code, result.content);
-            throw new NacosException(result.code, result.content);
+                    group, tenant, result.getCode(), result.getMessage());
+            throw new NacosException(result.getCode(), result.getMessage());
         } else {
             LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId,
-                    group, tenant, result.code, result.content);
+                    group, tenant, result.getCode(), result.getMessage());
             return false;
         }
     }
@@ -227,55 +230,46 @@ public class ChangeableConfig implements IConfigService {
         content = cr.getContent();
 
         String url = Constants.CONFIG_CONTROLLER_PATH;
-        List<String> params = new ArrayList<String>();
-        params.add("dataId");
-        params.add(dataId);
-        params.add("group");
-        params.add(group);
-        params.add("content");
-        params.add(content);
-        if (StringUtils.isNotEmpty(tenant)) {
-            params.add("tenant");
-            params.add(tenant);
+        Map<String, String> params = new HashMap<String, String>(6);
+        params.put("dataId", dataId);
+        params.put("group", group);
+        params.put("content", content);
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(tenant)) {
+            params.put("tenant", tenant);
         }
-        if (StringUtils.isNotEmpty(appName)) {
-            params.add("appName");
-            params.add(appName);
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(appName)) {
+            params.put("appName", appName);
         }
-        if (StringUtils.isNotEmpty(tag)) {
-            params.add("tag");
-            params.add(tag);
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(tag)) {
+            params.put("tag", tag);
+        }
+        Map<String, String> headers = new HashMap<String, String>(1);
+        if (com.alibaba.nacos.common.utils.StringUtils.isNotEmpty(betaIps)) {
+            headers.put("betaIps", betaIps);
         }
 
-        List<String> headers = new ArrayList<String>();
-        if (StringUtils.isNotEmpty(betaIps)) {
-            headers.add("betaIps");
-            headers.add(betaIps);
-        }
-
-        HttpSimpleClient.HttpResult result = null;
+        HttpRestResult<String> result = null;
         try {
             result = agent.httpPost(url, headers, params, encode, POST_TIMEOUT);
-        } catch (IOException ioe) {
-            LOGGER.warn("[{}] [publish-single] exception, dataId={}, group={}, msg={}", agent.getName(), dataId,
-                    group, ioe.toString());
+        } catch (Exception ex) {
+            LOGGER.warn("[{}] [publish-single] exception, dataId={}, group={}, msg={}", agent.getName(), dataId, group,
+                    ex.toString());
             return false;
         }
 
-        if (HttpURLConnection.HTTP_OK == result.code) {
+        if (result.ok()) {
             LOGGER.info("[{}] [publish-single] ok, dataId={}, group={}, tenant={}, config={}", agent.getName(), dataId,
                     group, tenant, ContentUtils.truncateContent(content));
             return true;
-        } else if (HttpURLConnection.HTTP_FORBIDDEN == result.code) {
+        } else if (HttpURLConnection.HTTP_FORBIDDEN == result.getCode()) {
             LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(),
-                    dataId, group, tenant, result.code, result.content);
-            throw new NacosException(result.code, result.content);
+                    dataId, group, tenant, result.getCode(), result.getMessage());
+            throw new NacosException(result.getCode(), result.getMessage());
         } else {
             LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(),
-                    dataId, group, tenant, result.code, result.content);
+                    dataId, group, tenant, result.getCode(), result.getMessage());
             return false;
         }
-
     }
 
     @Override
@@ -285,5 +279,11 @@ public class ChangeableConfig implements IConfigService {
         } else {
             return "DOWN";
         }
+    }
+
+    @Override
+    public void shutDown() throws NacosException {
+        agent.shutdown();
+        worker.shutdown();
     }
 }

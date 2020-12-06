@@ -17,9 +17,9 @@
     <packaging>jar</packaging>
 
     <properties>
-        <nacos-config.version>2.2.1.RELEASE</nacos-config.version>
-        <nacos-client.version>1.2.1</nacos-client.version>
-        <nacos-api.version>1.2.1</nacos-api.version>
+        <nacos-config.version>2.2.3.RELEASE</nacos-config.version>
+        <nacos-client.version>1.4.0</nacos-client.version>
+        <nacos-api.version>1.4.0</nacos-api.version>
         <spring-boot-starter.version>2.3.0.RELEASE</spring-boot-starter.version>
         <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
         <spring-context.version>5.2.6.RELEASE</spring-context.version>
@@ -58,6 +58,10 @@
                 <exclusion>
                     <groupId>com.alibaba.nacos</groupId>
                     <artifactId>nacos-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
