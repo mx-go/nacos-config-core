@@ -1,4 +1,4 @@
-package nacos.config.core;
+package com.github.mx.nacos.config.core;
 
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
@@ -20,8 +20,8 @@ import com.alibaba.nacos.client.utils.ParamUtil;
 import com.alibaba.nacos.client.utils.ValidatorUtils;
 import com.alibaba.nacos.common.http.HttpRestResult;
 import com.alibaba.nacos.common.utils.StringUtils;
-import nacos.config.core.api.IChangeListener;
-import nacos.config.core.api.IConfigService;
+import com.github.mx.nacos.config.core.api.IChangeListener;
+import com.github.mx.nacos.config.core.api.IConfigService;
 import org.slf4j.Logger;
 
 import java.net.HttpURLConnection;

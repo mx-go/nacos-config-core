@@ -1,4 +1,4 @@
-package nacos.config.core.api;
+package com.github.mx.nacos.config.core.api;
 
 import com.alibaba.nacos.api.config.ConfigService;
 

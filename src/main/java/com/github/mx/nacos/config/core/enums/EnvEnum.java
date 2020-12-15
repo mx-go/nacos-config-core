@@ -1,4 +1,4 @@
-package nacos.config.core.enums;
+package com.github.mx.nacos.config.core.enums;
 
 import java.util.Arrays;
 

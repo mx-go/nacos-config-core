@@ -1,10 +1,10 @@
-package nacos.config.core;
+package com.github.mx.nacos.config.core;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
+import com.github.mx.nacos.config.core.enums.EnvEnum;
 import com.google.common.base.Strings;
-import nacos.config.core.api.IConfigService;
-import nacos.config.core.enums.EnvEnum;
+import com.github.mx.nacos.config.core.api.IConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -68,7 +68,7 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
                 properties.put(PropertyKeyConst.NAMESPACE, namespace);
             }
             try {
-                Class<?> driverImplClass = Class.forName("nacos.config.core.ChangeableConfig");
+                Class<?> driverImplClass = Class.forName("com.github.mx.nacos.config.core.ChangeableConfig");
                 Constructor<?> constructor = driverImplClass.getConstructor(Properties.class);
                 log.info("Init config center success. properties:{}", properties);
                 return (IConfigService) constructor.newInstance(properties);

@@ -1,4 +1,4 @@
-package nacos.config.core.annotation;
+package com.github.mx.nacos.config.core.annotation;
 
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.ScopedProxyMode;

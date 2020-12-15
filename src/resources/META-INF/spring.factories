@@ -1,2 +1,2 @@
 org.springframework.boot.env.EnvironmentPostProcessor=\
-nacos.config.core.ConfigFactory
+com.github.mx.nacos.config.core.ConfigFactory
