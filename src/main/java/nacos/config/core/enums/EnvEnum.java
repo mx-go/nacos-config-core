@@ -23,8 +23,13 @@ public enum EnvEnum {
     PROD("prod", "localhost:8848"),
     ;
 
+    /**
+     * 环境标识
+     */
     private final String env;
-
+    /**
+     * nacos集群地址
+     */
     private final String serverAddress;
 
     EnvEnum(String env, String serverAddress) {
