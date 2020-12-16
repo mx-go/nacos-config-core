@@ -1,6 +1,5 @@
-# nacos-config-core使用
 alibaba-nacos配置中心加强(基于nacos 1.4.0)
-## 解决了什么问题
+## 优化
 
 1. 支持动态加载**static**的属性配置
 2. 自动化配置**Nacos**的**serverAddr**和**groupId**
