@@ -12,9 +12,9 @@ alibaba-nacos配置中心加强(基于nacos 1.4.0)
 
 ```properties
 <dependency>
-     <groupId>com.sf.opcbase</groupId>
+     <groupId>com.github.mx-go</groupId>
      <artifactId>nacos-config-core</artifactId>
-     <version>0.0.1-SNAPSHOT</version>
+     <version>1.0.0</version>
 </dependency>
 ```
 
