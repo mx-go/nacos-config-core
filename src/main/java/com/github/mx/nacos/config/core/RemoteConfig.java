@@ -25,6 +25,9 @@ public class RemoteConfig {
 
     }
 
+    /**
+     * 将配置中心字符串转为Properties
+     */
     public static IConfig convert(String config) {
         Properties properties = new Properties();
         try {
