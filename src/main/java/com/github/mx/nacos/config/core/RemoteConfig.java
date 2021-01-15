@@ -1,5 +1,6 @@
 package com.github.mx.nacos.config.core;
 
+import com.github.mx.nacos.config.core.util.YamlUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -30,8 +32,9 @@ public class RemoteConfig {
      */
     public static IConfig convert(String config) {
         Properties properties = new Properties();
+        String ps = processContent(config);
         try {
-            properties.load(new StringReader(config));
+            properties.load(new StringReader(ps));
         } catch (Exception e) {
             LOGGER.error("Load Properties from configInfo error. configInfo:{}", config, e);
         }
@@ -129,7 +132,7 @@ public class RemoteConfig {
 
             @Override
             public byte[] getContent() {
-                return config.getBytes();
+                return ps.getBytes();
             }
 
             @Override
@@ -142,10 +145,35 @@ public class RemoteConfig {
                 return new String(getContent(), charset);
             }
 
+            @SuppressWarnings("UnstableApiUsage")
             @Override
             public List<String> getStringList(String key, String separator) {
                 return Splitter.on(separator).omitEmptyStrings().trimResults().splitToList(get(key));
             }
         };
+    }
+
+    private static String processContent(String config) {
+        try {
+            if (isYaml(config)) {
+                return YamlUtils.ymlToPropertiesString(config);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Convert yaml config error. config:{}", config, e);
+        }
+        return config;
+    }
+
+    /**
+     * 粗略判断是否是yml格式
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    private static boolean isYaml(String config) {
+        Optional<String> firstLine = Splitter.on("\n").splitToList(config)
+                .stream()
+                .filter(line -> !line.trim().startsWith("#"))
+                .findFirst();
+        return firstLine.map(line -> (line.trim().endsWith(":") || line.contains(": ")))
+                .orElse(false);
     }
 }
