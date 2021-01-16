@@ -26,6 +26,10 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
 
     public static Environment environment;
 
+    public static String getApplicationName() {
+        return getProperty("${spring.application.name:}");
+    }
+
     public static String getProperty(String key) {
         return environment.getProperty(key);
     }
