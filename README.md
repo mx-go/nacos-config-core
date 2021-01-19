@@ -43,7 +43,7 @@ public class ConfigCenter {
         });
 
         // 使用方式2
-        ConfigFactory.getInstance().registerListener("config.properties", config -> {
+        ConfigFactory.getInstance().registerListener("config.properties", "groupId", config -> {
             IConfig iConfig = RemoteConfig.convert(config);
             configName = iConfig.get("config.name");
             // 设置默认值
