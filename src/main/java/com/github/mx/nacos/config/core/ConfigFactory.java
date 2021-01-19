@@ -2,9 +2,9 @@ package com.github.mx.nacos.config.core;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
+import com.github.mx.nacos.config.core.api.IConfigService;
 import com.github.mx.nacos.config.core.enums.EnvEnum;
 import com.google.common.base.Strings;
-import com.github.mx.nacos.config.core.api.IConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -31,7 +31,7 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
     }
 
     public static String getProperty(String key) {
-        return environment.getProperty(key);
+        return environment.resolvePlaceholders(key);
     }
 
     public static IConfigService getInstance() {

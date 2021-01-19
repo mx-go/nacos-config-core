@@ -5,6 +5,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.github.mx.nacos.config.core.api.IConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,10 @@ public class RemoteConfig {
      * 将配置中心字符串转为Properties
      */
     public static IConfig convert(String config) {
+        if (StringUtils.isBlank(config)) {
+            throw new IllegalArgumentException("Cannot find config. Please check nacos groupId and dataId");
+        }
+
         Properties properties = new Properties();
         String ps = processContent(config);
         try {
