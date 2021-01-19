@@ -13,7 +13,7 @@ alibaba-nacos配置中心加强(基于nacos 1.4.0)
 <dependency>
      <groupId>com.github.mx-go</groupId>
      <artifactId>nacos-config-core</artifactId>
-     <version>1.0.1</version>
+     <version>1.0.2</version>
 </dependency>
 ```
 
