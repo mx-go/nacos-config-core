@@ -2,6 +2,7 @@ package com.github.mx.nacos.config.core;
 
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
+import com.alibaba.nacos.api.config.ConfigType;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.client.config.NacosConfigService;
@@ -118,7 +119,12 @@ public class ChangeableConfig implements IConfigService {
 
     @Override
     public boolean publishConfig(String dataId, String group, String content) throws NacosException {
-        return publishConfigInner(namespace, dataId, group, null, null, null, content);
+        return publishConfig(dataId, group, content, ConfigType.getDefaultType().getType());
+    }
+
+    @Override
+    public boolean publishConfig(String dataId, String group, String content, String type) throws NacosException {
+        return publishConfigInner(namespace, dataId, group, null, null, null, content, type);
     }
 
     @Override
@@ -217,7 +223,7 @@ public class ChangeableConfig implements IConfigService {
     }
 
     private boolean publishConfigInner(String tenant, String dataId, String group, String tag, String appName,
-                                       String betaIps, String content) throws NacosException {
+                                       String betaIps, String content, String type) throws NacosException {
         group = null2defaultGroup(group);
         ParamUtils.checkParam(dataId, group, content);
 

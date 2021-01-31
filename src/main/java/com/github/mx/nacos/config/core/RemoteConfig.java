@@ -1,11 +1,11 @@
 package com.github.mx.nacos.config.core;
 
+import com.alibaba.nacos.api.utils.StringUtils;
+import com.github.mx.nacos.config.core.api.IConfig;
 import com.github.mx.nacos.config.core.util.YamlUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.github.mx.nacos.config.core.api.IConfig;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
