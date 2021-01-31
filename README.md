@@ -1,4 +1,4 @@
-alibaba-nacos配置中心加强(基于nacos 1.4.0)
+alibaba-nacos配置中心加强
 ## 优化
 
 1. 支持动态加载**static**的属性配置
