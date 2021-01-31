@@ -64,5 +64,5 @@ public class ConfigCenter {
                  
 ### 注意
 - 配置的类需要添加@RefreshConfig注解
-- 由于本组件基于Nacos做二次封装。故需要配置**spring.cloud.nacos.config.server-addr**或**spring.cloud.nacos.discovery.server-addr**（没有配置的话会根据环境读取配置好的nacos集群默认地址）
+- 由于本组件基于Nacos做二次封装。故需要配置spring.cloud.nacos.server-addr或**spring.cloud.nacos.config.server-addr**或**spring.cloud.nacos.discovery.server-addr**
 - nacos中的**groupId**默认取**spring.application.name**
