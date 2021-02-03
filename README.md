@@ -13,7 +13,7 @@ alibaba-nacos配置中心加强
 <dependency>
      <groupId>com.github.mx-go</groupId>
      <artifactId>nacos-config-core</artifactId>
-     <version>1.0.2</version>
+     <version>1.0.3</version>
 </dependency>
 ```
 
@@ -64,5 +64,5 @@ public class ConfigCenter {
                  
 ### 注意
 - 配置的类需要添加@RefreshConfig注解
-- 由于本组件基于Nacos做二次封装。故需要配置spring.cloud.nacos.server-addr或**spring.cloud.nacos.config.server-addr**或**spring.cloud.nacos.discovery.server-addr**
+- 由于本组件基于Nacos做二次封装。故需要配置**spring.cloud.nacos.server-addr**或**spring.cloud.nacos.config.server-addr**或**spring.cloud.nacos.discovery.server-addr**
 - nacos中的**groupId**默认取**spring.application.name**
