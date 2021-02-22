@@ -50,11 +50,11 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
         }
 
         private static IConfigService doCreate() {
-            // 读取nacos服务地址
-            String serverAddr = getProperty("${spring.cloud.nacos.server-addr:}");
             // 读取nacos配置中心地址
+            String serverAddr = getProperty("${spring.cloud.nacos.config.server-addr:}");
+            // 读取nacos地址
             if (Strings.isNullOrEmpty(serverAddr)) {
-                serverAddr = getProperty("${spring.cloud.nacos.config.server-addr:}");
+                serverAddr = getProperty("${spring.cloud.nacos.server-addr:}");
             }
             // 读取nacos注册中心地址
             if (Strings.isNullOrEmpty(serverAddr)) {
