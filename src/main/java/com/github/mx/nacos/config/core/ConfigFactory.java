@@ -38,6 +38,13 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
         return LazyHolder.INSTANCE;
     }
 
+    /**
+     * 非spring boot服务架构可使用此方式注入环境变量
+     */
+    public void setEnvironment(Environment environment) {
+        ConfigFactory.environment = environment;
+    }
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         ConfigFactory.environment = environment;
