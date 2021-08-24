@@ -23,6 +23,7 @@ import com.alibaba.nacos.common.http.HttpRestResult;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.github.mx.nacos.config.core.api.IChangeListener;
 import com.github.mx.nacos.config.core.api.IConfigService;
+import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 
 import java.net.HttpURLConnection;
@@ -30,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Config Impl
@@ -42,6 +44,11 @@ public class ChangeableConfig implements IConfigService {
     private static final Logger LOGGER = LogUtils.logger(NacosConfigService.class);
 
     private static final long POST_TIMEOUT = 3000L;
+
+    /**
+     * Map<tenantId.group.dataId, type>
+     */
+    public static Map<String, String> CONFIG_TYPE_MAP = new ConcurrentHashMap<>(16);
 
     /**
      * http agent.
@@ -164,6 +171,7 @@ public class ChangeableConfig implements IConfigService {
             configFilterChainManager.doFilter(null, cr);
             content = cr.getContent();
 
+            CONFIG_TYPE_MAP.put(join(tenant, group, dataId), ct[1]);
             return content;
         } catch (NacosException ioe) {
             if (NacosException.NO_RIGHT == ioe.getErrCode()) {
@@ -180,6 +188,10 @@ public class ChangeableConfig implements IConfigService {
         configFilterChainManager.doFilter(null, cr);
         content = cr.getContent();
         return content;
+    }
+
+    public static String join(String... args) {
+        return Joiner.on(".").join(args);
     }
 
     private String null2defaultGroup(String group) {
