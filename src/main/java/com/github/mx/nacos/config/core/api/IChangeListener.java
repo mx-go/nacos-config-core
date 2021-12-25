@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
  * <p>
  * Create by max on 2020/12/05
  **/
+@FunctionalInterface
 public interface IChangeListener extends Listener {
 
     @Override
