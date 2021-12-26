@@ -1,7 +1,7 @@
 package com.github.mx.nacos.config.core.api;
 
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -116,5 +116,5 @@ public interface IConfig {
      * @param separator 分隔符
      * @return 字符串List
      */
-    List<String> getStringList(String key, String separator);
+    Collection<String> getStrings(String key, String separator);
 }

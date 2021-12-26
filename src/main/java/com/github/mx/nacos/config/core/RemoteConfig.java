@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -152,7 +152,7 @@ public class RemoteConfig {
 
             @SuppressWarnings("UnstableApiUsage")
             @Override
-            public List<String> getStringList(String key, String separator) {
+            public Collection<String> getStrings(String key, String separator) {
                 return Splitter.on(separator).omitEmptyStrings().trimResults().splitToList(get(key));
             }
         };
