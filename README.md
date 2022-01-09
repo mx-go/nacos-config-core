@@ -11,7 +11,7 @@ alibaba-nacos配置中心加强
 
 ```properties
 <dependency>
-     <groupId>com.github.mx-go</groupId>
+<groupId>com.github.mx-go</groupId>
 <artifactId>nacos-config-core</artifactId>
 <version>${latest-version}</version>
 </dependency>
