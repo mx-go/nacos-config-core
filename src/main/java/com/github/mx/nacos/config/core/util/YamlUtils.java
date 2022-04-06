@@ -28,6 +28,9 @@ public class YamlUtils {
 
     /**
      * yml格式转换到properties字符串
+     *
+     * @param ymlContent yml格式字符串
+     * @return properties格式字符串
      */
     public static String ymlToPropertiesString(String ymlContent) {
         if (null == ymlContent || "".equals(ymlContent)) {

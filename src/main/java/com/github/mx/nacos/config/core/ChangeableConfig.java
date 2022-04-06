@@ -46,7 +46,8 @@ public class ChangeableConfig implements IConfigService {
     private static final long POST_TIMEOUT = 3000L;
 
     /**
-     * Map<tenantId.group.dataId, type>
+     * key：tenantId.group.dataId
+     * value：type
      */
     public static Map<String, String> CONFIG_TYPE_MAP = new ConcurrentHashMap<>(16);
 

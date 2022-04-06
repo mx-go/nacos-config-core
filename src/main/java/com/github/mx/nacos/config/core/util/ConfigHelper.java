@@ -73,6 +73,8 @@ public class ConfigHelper {
 
     /**
      * 获取应用名
+     *
+     * @return 应用名称
      */
     public static String getAppName() {
         return ConfigFactory.getApplicationName();

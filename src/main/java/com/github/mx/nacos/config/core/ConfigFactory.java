@@ -40,6 +40,8 @@ public class ConfigFactory extends NacosFactory implements EnvironmentPostProces
 
     /**
      * 非spring boot服务架构可使用此方式注入环境变量
+     *
+     * @param environment 环境变量
      */
     public void setEnvironment(Environment environment) {
         ConfigFactory.environment = environment;

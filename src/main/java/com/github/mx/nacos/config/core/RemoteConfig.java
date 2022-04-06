@@ -31,6 +31,9 @@ public class RemoteConfig {
 
     /**
      * 将配置中心字符串转为Properties
+     *
+     * @param config 配置信息
+     * @return IConfig
      */
     public static IConfig convert(String config) {
         if (StringUtils.isBlank(config)) {
