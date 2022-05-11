@@ -154,13 +154,19 @@ public class RemoteConfig {
                 return new String(getContent(), charset);
             }
 
+            @Override
+            public Collection<String> getStrings(String key) {
+                return getStrings(key, ";");
+            }
+
             @SuppressWarnings("UnstableApiUsage")
             @Override
             public Collection<String> getStrings(String key, String separator) {
-                if (StringUtils.isBlank(key)) {
+                String val = get(key);
+                if (StringUtils.isBlank(val)) {
                     return Collections.emptyList();
                 }
-                return Splitter.on(separator).omitEmptyStrings().trimResults().splitToList(get(key));
+                return Splitter.on(separator).omitEmptyStrings().trimResults().splitToList(val);
             }
         };
     }

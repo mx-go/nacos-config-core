@@ -110,6 +110,14 @@ public interface IConfig {
     String getString(Charset charset);
 
     /**
+     * 读取内容并通过分隔符分隔为List。默认分隔符为分号;
+     *
+     * @param key 查找的key
+     * @return 字符串List
+     */
+    Collection<String> getStrings(String key);
+
+    /**
      * 读取内容并通过分隔符分隔为List
      *
      * @param key       查找的key
