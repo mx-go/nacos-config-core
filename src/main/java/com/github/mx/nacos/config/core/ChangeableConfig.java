@@ -22,6 +22,7 @@ import com.alibaba.nacos.client.utils.ValidatorUtils;
 import com.alibaba.nacos.common.http.HttpRestResult;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.github.mx.nacos.config.core.api.IChangeListener;
+import com.github.mx.nacos.config.core.api.IConfig;
 import com.github.mx.nacos.config.core.api.IConfigService;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Config Impl
@@ -105,21 +107,20 @@ public class ChangeableConfig implements IConfigService {
     }
 
     @Override
-    public void registerListener(String dataId, IChangeListener listener) {
+    public void registerListener(String dataId, Consumer<IConfig> consumer) {
         String groupId = ConfigFactory.getProperty("${spring.application.name:}");
         try {
-            addListener(dataId, groupId, listener);
-            listener.receiveConfigInfo(getConfig(dataId, groupId, POST_TIMEOUT));
+            registerListener(dataId, groupId, consumer);
         } catch (Exception e) {
             LOGGER.error("registerListener error. dataId:{}, groupId:{}", dataId, groupId, e);
         }
     }
 
     @Override
-    public void registerListener(String dataId, String groupId, IChangeListener listener) {
+    public void registerListener(String dataId, String groupId, Consumer<IConfig> consumer) {
         try {
-            addListener(dataId, groupId, listener);
-            listener.receiveConfigInfo(getConfig(dataId, groupId, POST_TIMEOUT));
+            addListener(dataId, groupId, (IChangeListener) configInfo -> consumer.accept(RemoteConfig.convert(configInfo)));
+            consumer.accept(RemoteConfig.convert(getConfig(dataId, groupId, POST_TIMEOUT)));
         } catch (Exception e) {
             LOGGER.error("registerListener error. dataId:{}, groupId:{}", dataId, groupId, e);
         }
@@ -157,8 +158,7 @@ public class ChangeableConfig implements IConfigService {
         // 优先使用本地配置
         String content = LocalConfigInfoProcessor.getFailover(agent.getName(), dataId, group, tenant);
         if (content != null) {
-            LOGGER.warn("[{}] [get-config] get failover ok, dataId={}, group={}, tenant={}, config={}", agent.getName(),
-                    dataId, group, tenant, ContentUtils.truncateContent(content));
+            LOGGER.warn("[{}] [get-config] get failover ok, dataId={}, group={}, tenant={}, config={}", agent.getName(), dataId, group, tenant, ContentUtils.truncateContent(content));
             cr.setContent(content);
             configFilterChainManager.doFilter(null, cr);
             content = cr.getContent();
@@ -178,12 +178,10 @@ public class ChangeableConfig implements IConfigService {
             if (NacosException.NO_RIGHT == ioe.getErrCode()) {
                 throw ioe;
             }
-            LOGGER.warn("[{}] [get-config] get from server error, dataId={}, group={}, tenant={}, msg={}",
-                    agent.getName(), dataId, group, tenant, ioe.toString());
+            LOGGER.warn("[{}] [get-config] get from server error, dataId={}, group={}, tenant={}, msg={}", agent.getName(), dataId, group, tenant, ioe.toString());
         }
 
-        LOGGER.warn("[{}] [get-config] get snapshot ok, dataId={}, group={}, tenant={}, config={}", agent.getName(),
-                dataId, group, tenant, ContentUtils.truncateContent(content));
+        LOGGER.warn("[{}] [get-config] get snapshot ok, dataId={}, group={}, tenant={}, config={}", agent.getName(), dataId, group, tenant, ContentUtils.truncateContent(content));
         content = LocalConfigInfoProcessor.getSnapshot(agent.getName(), dataId, group, tenant);
         cr.setContent(content);
         configFilterChainManager.doFilter(null, cr);
@@ -225,18 +223,15 @@ public class ChangeableConfig implements IConfigService {
             LOGGER.info("[{}] [remove] ok, dataId={}, group={}, tenant={}", agent.getName(), dataId, group, tenant);
             return true;
         } else if (HttpURLConnection.HTTP_FORBIDDEN == result.getCode()) {
-            LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId,
-                    group, tenant, result.getCode(), result.getMessage());
+            LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId, group, tenant, result.getCode(), result.getMessage());
             throw new NacosException(result.getCode(), result.getMessage());
         } else {
-            LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId,
-                    group, tenant, result.getCode(), result.getMessage());
+            LOGGER.warn("[{}] [remove] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId, group, tenant, result.getCode(), result.getMessage());
             return false;
         }
     }
 
-    private boolean publishConfigInner(String tenant, String dataId, String group, String tag, String appName,
-                                       String betaIps, String content, String type) throws NacosException {
+    private boolean publishConfigInner(String tenant, String dataId, String group, String tag, String appName, String betaIps, String content, String type) throws NacosException {
         group = null2defaultGroup(group);
         ParamUtils.checkParam(dataId, group, content);
 
@@ -271,22 +266,18 @@ public class ChangeableConfig implements IConfigService {
         try {
             result = agent.httpPost(url, headers, params, encode, POST_TIMEOUT);
         } catch (Exception ex) {
-            LOGGER.warn("[{}] [publish-single] exception, dataId={}, group={}, msg={}", agent.getName(), dataId, group,
-                    ex.toString());
+            LOGGER.warn("[{}] [publish-single] exception, dataId={}, group={}, msg={}", agent.getName(), dataId, group, ex.toString());
             return false;
         }
 
         if (result.ok()) {
-            LOGGER.info("[{}] [publish-single] ok, dataId={}, group={}, tenant={}, config={}", agent.getName(), dataId,
-                    group, tenant, ContentUtils.truncateContent(content));
+            LOGGER.info("[{}] [publish-single] ok, dataId={}, group={}, tenant={}, config={}", agent.getName(), dataId, group, tenant, ContentUtils.truncateContent(content));
             return true;
         } else if (HttpURLConnection.HTTP_FORBIDDEN == result.getCode()) {
-            LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(),
-                    dataId, group, tenant, result.getCode(), result.getMessage());
+            LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId, group, tenant, result.getCode(), result.getMessage());
             throw new NacosException(result.getCode(), result.getMessage());
         } else {
-            LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(),
-                    dataId, group, tenant, result.getCode(), result.getMessage());
+            LOGGER.warn("[{}] [publish-single] error, dataId={}, group={}, tenant={}, code={}, msg={}", agent.getName(), dataId, group, tenant, result.getCode(), result.getMessage());
             return false;
         }
     }

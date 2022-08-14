@@ -33,8 +33,7 @@ public class ConfigCenter {
     @PostConstruct
     public void init() {
         // 使用方式1
-        ConfigFactory.getInstance().registerListener("user.properties", config -> {
-            IConfig iConfig = RemoteConfig.convert(config);
+        ConfigFactory.getInstance().registerListener("user.properties", iConfig -> {
             userName = iConfig.get("user.name");
             userAge = iConfig.getInt("user.age");
             // 设置默认值
@@ -43,8 +42,7 @@ public class ConfigCenter {
         });
 
         // 使用方式2
-        ConfigFactory.getInstance().registerListener("config.properties", "groupId", config -> {
-            IConfig iConfig = RemoteConfig.convert(config);
+        ConfigFactory.getInstance().registerListener("config.properties", "groupId", iConfig -> {
             configName = iConfig.get("config.name");
             // 设置默认值
             configAge = iConfig.getDouble("config.age", 18d);
