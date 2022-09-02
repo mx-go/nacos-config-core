@@ -33,7 +33,7 @@ public class ConfigCenter {
     @PostConstruct
     public void init() {
         // 使用方式1
-        ConfigFactory.getInstance().registerListener("user.properties", iConfig -> {
+        ConfigFactory.getInstance().addListener("user.properties", iConfig -> {
             userName = iConfig.get("user.name");
             userAge = iConfig.getInt("user.age");
             // 设置默认值
@@ -42,14 +42,14 @@ public class ConfigCenter {
         });
 
         // 使用方式2
-        ConfigFactory.getInstance().registerListener("config.properties", "groupId", iConfig -> {
+        ConfigFactory.getInstance().addListener("config.properties", "groupId", iConfig -> {
             configName = iConfig.get("config.name");
             // 设置默认值
             configAge = iConfig.getDouble("config.age", 18d);
         });
 
         // 方式3
-        ConfigFactory.getInstance().registerListener("route.json", this::updateConfig);
+        ConfigFactory.getInstance().addListener("route.json", this::updateConfig);
         }
                  
         private void updateConfig(String configInfo) {
